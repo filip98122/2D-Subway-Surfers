@@ -5,48 +5,17 @@ from PIL import Image
 
 flag = True
 
-image = Image.open("KnightSpritesheet.png")
-pixels = image.load()
-print(pixels[2,35])
-w,h = image.size
-#top and bottom
-y_levels = [[0,54],[57,135],[136,136 + 59]]
 
 #for x in range(w):
 #    for y in range(h):
 #        if pixels[x,y][-1] != 0 and pixels[x,y][-1] != 255:
 #            a = 5
 
-a = 0
-next_px = "full"
-xlist =[]
-for i in range(len(y_levels)):
-    start = -1
-    end = -1
-    for x in range(214):
-        
-        
-        flag = True
-        for y in range(y_levels[i][0],y_levels[i][1]):
-            transparency = pixels[x,y][-1]
-            if transparency > 10:
-                flag = False
-                if start==-1:
-                    start = x
-                
-                
-                
-        if flag == True:
-            a += 1
-            if end==-1 and start!=-1:
-                end = x
-                xlist.append([start,end])
-                start = -1
-                end = -1
-            
-            
-print(xlist)            
-print(a)
+
+
+
+
+
 
 pygame.init()
 
@@ -73,10 +42,16 @@ def colision1(rect1 : pygame.Rect,rect2):
     return False
 
 
-WIDTH,HEIGHT = 800,800
+WIDTH,HEIGHT = 1000,800
 
 window = pygame.display.set_mode((WIDTH,HEIGHT))
 
+
+sprite32 = pygame.image.load('hill.png')
+spritesheet32 = pygame.transform.scale(sprite32,(sprite32.get_width()*5,sprite32.get_height()*5))
+
+sprite31 = pygame.image.load('haunt.png')
+spritesheet31 = pygame.transform.scale(sprite31,(sprite31.get_width()*5,sprite31.get_height()*5))
 
 class Target:
     def __init__(self,x,y,speed,width,height,direction):
@@ -87,6 +62,8 @@ class Target:
         self.speed = speed
         self.direction = direction
         self.size = 30
+        
+        
     def draw_going_Right(self,window):
         pygame.draw.rect(window, pygame.Color("Black"), 
         pygame.Rect(self.x, self.y, self.width,self.height)) # Draws a rectangle
@@ -106,6 +83,8 @@ class Target:
         pygame.Rect(self.x + 5, self.y+5,70,50))
         pygame.draw.circle(window, pygame.Color(40,40,40), (self.x + self.width-15,self.y + self.height), self.size)
         pygame.draw.circle(window, pygame.Color("Gray"), (self.x + self.width-15,self.y + self.height),self.size - 15)
+        
+        
     def move(self):
         if self.direction == 0:
             self.x += self.speed
@@ -113,43 +92,79 @@ class Target:
             self.x -= self.speed
 FPS = 60
 class Player:
-    def __init__(self,x,y,speed,):
+    def __init__(self,x,y,speed):
         self.x = x
         self.y = y
         self.speed = speed
-        self.spritesheet = pygame.image.load('KnightSpritesheet.png')
-        self.spritesheet =pygame.transform.scale(self.spritesheet,(self.spritesheet.get_width()*4,self.spritesheet.get_height()*4))
-        self.width = self.spritesheet.get_width()*0.15
-        self.render_frame = 0
-        self.size = 4
-        self.frame_count = 0
-        self.frame_flip = 15
-        self.state = 2
-        self.info = [
-            
-            #x offset,y ofset,width,height, number of frames
-            [56,0,37,54,2],
-            [56,61,45,54,7],
-            [0,140,41,52,7]
-            ]
-    def draw(self,window):
+        self.movement = [0,0]
+        self.change_time = 0
+        self.spritesheete_pos = [1,550]
+        self.movefix = 0
+        self.knight_lane = 3
+        self.ff = 0
+        
+        #Left foot first
+        
+        self.spriteshee1 = pygame.image.load('run.knight1.png')
+        self.spritesheet1 = pygame.transform.scale(self.spriteshee1,(self.spriteshee1.get_width()*4,self.spriteshee1.get_height()*4))
 
-        if self.render_frame >self.info[self.state][4]:
-            self.render_frame = 0
-        window.blit(self.spritesheet,(0,0),(self.info[self.state][0]*self.render_frame*self.size,self.info[self.state][1]*self.size,self.info[self.state][2]*self.size,self.info[self.state][3]*self.size))
-        if self.frame_count == self.frame_flip:
-            self.render_frame+=1
-            self.frame_count = 0
-        self.frame_count+=1
+        
+        #Right foot first
+        
+        self.spriteshee2 = pygame.image.load('run.knight2.png')
+        self.spritesheet2 = pygame.transform.scale(self.spriteshee2,(self.spriteshee2.get_width()*4,self.spriteshee2.get_height()*4))
+
+        #mid
+
+        self.spriteshee3 = pygame.image.load('run.knight3.png')
+        self.spritesheet3 = pygame.transform.scale(self.spriteshee3,(self.spriteshee3.get_width()*4,self.spriteshee3.get_height()*4))
+
+
+
+
+    def draw(self,window):
+        
+        if self.change_time <= 15:
+            window.blit(self.spritesheet1,(self.spritesheete_pos[0],self.spritesheete_pos[1]))
+            
+        if self.change_time >= 16:
+            window.blit(self.spritesheet3,(self.spritesheete_pos[0],self.spritesheete_pos[1]))
+            
+            
+        if self.change_time == 30:
+            self.change_time = 0
+            
+            
+        self.change_time += 1
         
         
+    def move(self,keys):
+        if self.ff <= 0:
+            if keys[pygame.K_SPACE]:
+                self.ff = 120 
+                
+        if self.ff <= 120 and self.ff >= 61:
+            self.spritesheete_pos[1] -= 2.166666666666667
+            
+        if self.ff <= 60 and self.ff >= 0:
+                self.spritesheete_pos[1] += 2.166666666666667
+            
+        if keys[pygame.K_LEFT]:
+            self.spritesheete_pos[0] -= self.speed
             
             
-            
+        if keys[pygame.K_RIGHT]:
+            self.spritesheete_pos[0] += self.speed
+
+        self.ff -= 1      
+        
         
         
 s = random.randint(0,1000)
+
+l_targets = []
 target = Target(400,600,2,125,100,1)
+l_targets.append(target)
 
 if target.direction == 0:
     target.x = -150
@@ -176,9 +191,14 @@ sprites = pygame.transform.scale(sprites,(sprites.get_width()*4,sprites.get_heig
 #   time.sleep(0.45)
     
     
-p = Player(0,0,4)
+p = Player(0,0,3)
 
 clock = pygame.time.Clock()
+
+
+hauntstage = 1
+hillstage = 0
+
 
 while True:
     
@@ -193,13 +213,17 @@ while True:
     if keys[pygame.K_ESCAPE]:
         exit()
         
-    target.move()
+
+        
+        
+        
+    p.move(keys)
+    pygame.draw.rect(window, pygame.Color("Gray"), pygame.Rect((0,650, 1000,100)))
+    
     p.draw(window)
-    pygame.draw.rect(window, pygame.Color("Gray"), pygame.Rect((0,650, 800,100)))
-    if target.direction == 0:
-        target.draw_going_Right(window)
-    else:
-        target.draw_going_left(window)
+
+            
     pygame.display.update()
+    
     clock.tick(FPS)
     
