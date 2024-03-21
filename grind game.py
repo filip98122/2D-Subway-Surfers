@@ -46,12 +46,28 @@ WIDTH,HEIGHT = 1000,800
 
 window = pygame.display.set_mode((WIDTH,HEIGHT))
 
+def get_sprite_bigger(sprite,times_bigger_widht,times_bigger_height):
+    
+    spritesheet = pygame.transform.scale(sprite,(sprite.get_width()*times_bigger_widht,
+    sprite32.get_height()*times_bigger_height))
+
+    return spritesheet
+
+
+
+def blit( spritesheet, x, y, window ):
+    
+    window.blit(spritesheet,(x,y))
+    
 
 sprite32 = pygame.image.load('hill.png')
-spritesheet32 = pygame.transform.scale(sprite32,(sprite32.get_width()*5,sprite32.get_height()*5))
+
 
 sprite31 = pygame.image.load('haunt.png')
-spritesheet31 = pygame.transform.scale(sprite31,(sprite31.get_width()*5,sprite31.get_height()*5))
+
+sprite_attack = pygame.image.load("attack1knight.png")
+spritesheet31 = get_sprite_bigger(sprite31,0.565,0.825)
+
 
 class Target:
     def __init__(self,x,y,speed,width,height,direction):
@@ -98,7 +114,7 @@ class Player:
         self.speed = speed
         self.movement = [0,0]
         self.change_time = 0
-        self.spritesheete_pos = [1,550]
+        self.spritesheete_pos = [1,590]
         self.movefix = 0
         self.knight_lane = 3
         self.ff = 0
@@ -141,20 +157,21 @@ class Player:
     def move(self,keys):
         if self.ff <= 0:
             if keys[pygame.K_SPACE]:
-                self.ff = 120 
+                self.ff = 60 
                 
-        if self.ff <= 120 and self.ff >= 61:
-            self.spritesheete_pos[1] -= 2.166666666666667
+        if self.ff <= 60 and self.ff >= 31:
+            self.spritesheete_pos[1] -= 4
             
-        if self.ff <= 60 and self.ff >= 0:
-                self.spritesheete_pos[1] += 2.166666666666667
+        if self.ff <= 30 and self.ff >= 1:
+                self.spritesheete_pos[1] += 4
+                
+        if self.spritesheete_pos[0] > 20:
+            if keys[pygame.K_LEFT]:
+                self.spritesheete_pos[0] -= self.speed
             
-        if keys[pygame.K_LEFT]:
-            self.spritesheete_pos[0] -= self.speed
-            
-            
-        if keys[pygame.K_RIGHT]:
-            self.spritesheete_pos[0] += self.speed
+        if self.spritesheete_pos[0] + self.spriteshee2.get_width()*4 < 980:
+            if keys[pygame.K_RIGHT]:
+                self.spritesheete_pos[0] += self.speed
 
         self.ff -= 1      
         
@@ -202,7 +219,10 @@ hillstage = 0
 
 while True:
     
+    
     window.fill("White")
+    
+    blit(spritesheet31,0,0,window)
     keys = pygame.key.get_pressed()
     mouseState = pygame.mouse.get_pressed()
     mousePos = pygame.mouse.get_pos()   
@@ -218,7 +238,7 @@ while True:
         
         
     p.move(keys)
-    pygame.draw.rect(window, pygame.Color("Gray"), pygame.Rect((0,650, 1000,100)))
+    #pygame.draw.rect(window, pygame.Color("Gray"), pygame.Rect((0,650, 1000,100)))
     
     p.draw(window)
 
