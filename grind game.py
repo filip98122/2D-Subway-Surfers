@@ -65,7 +65,6 @@ sprite32 = pygame.image.load('hill.png')
 
 sprite31 = pygame.image.load('haunt.png')
 
-sprite_attack = pygame.image.load("attack1knight.png")
 spritesheet31 = get_sprite_bigger(sprite31,0.565,0.825)
 
 
@@ -118,41 +117,70 @@ class Player:
         self.movefix = 0
         self.knight_lane = 3
         self.ff = 0
+        self.clicked = 0
+        self.cooldown = 0
         
         #Left foot first
         
         self.spriteshee1 = pygame.image.load('run.knight1.png')
-        self.spritesheet1 = pygame.transform.scale(self.spriteshee1,(self.spriteshee1.get_width()*4,self.spriteshee1.get_height()*4))
+        
+        self.spritesheet1 = pygame.transform.scale(self.spriteshee1,(self.spriteshee1.get_width()*4,
+        self.spriteshee1.get_height()*4))
 
         
         #Right foot first
         
         self.spriteshee2 = pygame.image.load('run.knight2.png')
-        self.spritesheet2 = pygame.transform.scale(self.spriteshee2,(self.spriteshee2.get_width()*4,self.spriteshee2.get_height()*4))
+        
+        self.spritesheet2 = pygame.transform.scale(self.spriteshee2,(self.spriteshee2.get_width()*4,
+        self.spriteshee2.get_height()*4))
 
         #mid
 
         self.spriteshee3 = pygame.image.load('run.knight3.png')
-        self.spritesheet3 = pygame.transform.scale(self.spriteshee3,(self.spriteshee3.get_width()*4,self.spriteshee3.get_height()*4))
+        
+        self.spritesheet3 = pygame.transform.scale(self.spriteshee3,(self.spriteshee3.get_width()*4,
+        self.spriteshee3.get_height()*4))
 
-
+        #attack
+        
+        self.sprite_attack = pygame.image.load("attack1knight.png")
+        
+        self.sprite_attack_big = pygame.transform.scale(self.sprite_attack,(self.sprite_attack.get_width()*4,
+        self.sprite_attack.get_height()*4))
 
 
     def draw(self,window):
         
+        self.mouseState = pygame.mouse.get_pressed()
+        
+        if self.change_time >= 31:
+            window.blit(self.sprite_attack_big,(self.spritesheete_pos[0],self.spritesheete_pos[1]))
+            
+        if self.cooldown <= 0:
+            if mouseState[0] == True:
+                self.clicked = 1
+                self.change_time = 31
+                self.cooldown = 4
+        
         if self.change_time <= 15:
             window.blit(self.spritesheet1,(self.spritesheete_pos[0],self.spritesheete_pos[1]))
             
-        if self.change_time >= 16:
+        if self.change_time >= 16 and self.change_time < 31:
             window.blit(self.spritesheet3,(self.spritesheete_pos[0],self.spritesheete_pos[1]))
             
+        
+        if self.change_time >= 31:
+            window.blit(self.sprite_attack_big,(self.spritesheete_pos[0],self.spritesheete_pos[1]))
             
         if self.change_time == 30:
             self.change_time = 0
             
+        if self.change_time == 45:
+            self.change_time = 0
             
         self.change_time += 1
-        
+        self.cooldown -= 1
         
     def move(self,keys):
         if self.ff <= 0:
@@ -166,11 +194,11 @@ class Player:
                 self.spritesheete_pos[1] += 4
                 
         if self.spritesheete_pos[0] > 20:
-            if keys[pygame.K_LEFT]:
+            if keys[pygame.K_a]:
                 self.spritesheete_pos[0] -= self.speed
             
         if self.spritesheete_pos[0] + self.spriteshee2.get_width()*4 < 980:
-            if keys[pygame.K_RIGHT]:
+            if keys[pygame.K_d]:
                 self.spritesheete_pos[0] += self.speed
 
         self.ff -= 1      
