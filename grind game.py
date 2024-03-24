@@ -67,6 +67,128 @@ sprite31 = pygame.image.load('haunt.png')
 
 spritesheet31 = get_sprite_bigger(sprite31,0.565,0.825)
 
+class Zombie:
+    def __init__(self,speed,attack,posx,posy,hit_range):
+        self.speed = speed
+        self.attack = attack
+        self.change_time = 0
+        self.posx = posx
+        self.posy = posy
+        self.hit_range = hit_range
+        self.direction = 0
+        
+    def draw(self,window):
+        SCALE = 1.75
+        #zombie attack going left 
+        
+        self.sprite_zombie_attack_going_left = pygame.image.load("zombie_attack_going_left.png")
+        
+        self.sprite_zombie_attack_going_left_big =  pygame.transform.scale(self.sprite_zombie_attack_going_left,
+        (self.sprite_zombie_attack_going_left.get_width()*SCALE,self.sprite_zombie_attack_going_left.get_height()*SCALE))
+        
+        
+        
+        
+        #zombie attack going right
+        
+        self.sprite_zombie_attack_going_right = pygame.image.load("zombie_attack_going_right.png")
+        
+        self.sprite_zombie_attack_going_right_big =  pygame.transform.scale(self.sprite_zombie_attack_going_right,
+        (self.sprite_zombie_attack_going_right.get_width()*SCALE,self.sprite_zombie_attack_going_right.get_height()*SCALE))
+        
+        
+        
+        #left foot first going left
+        
+        self.sprite_zombie_left_going_left = pygame.image.load("zombie_left _going_left.png")
+        
+        self.sprite_zombie_left_big_going_left = pygame.transform.scale(self.sprite_zombie_left_going_left,
+        (self.sprite_zombie_left_going_left.get_width()*SCALE,self.sprite_zombie_left_going_left.get_height()*SCALE))
+        
+        
+        #right foot first going left
+        
+        self.sprite_zombie_right_going_left = pygame.image.load("zombie_right _going_left.png")
+        
+        self.sprite_zombie_right_big_going_left = pygame.transform.scale(self.sprite_zombie_right_going_left,
+        (self.sprite_zombie_right_going_left.get_width()*SCALE,self.sprite_zombie_right_going_left.get_height()*SCALE))
+        
+        
+        #left foot first going right
+        
+        self.sprite_zombie_left = pygame.image.load("zombie_left.png")
+        
+        self.sprite_zombie_left_big = pygame.transform.scale(self.sprite_zombie_left,
+        (self.sprite_zombie_left.get_width()*SCALE,self.sprite_zombie_left.get_height()*SCALE))
+        
+        #right foot first going right
+        
+        self.sprite_zombie_right = pygame.image.load("zombie_right.png")
+        
+        self.sprite_zombie_right_big = pygame.transform.scale(self.sprite_zombie_right,
+        (self.sprite_zombie_right.get_width()*SCALE,self.sprite_zombie_right.get_height()*SCALE))
+        
+        
+        if self.direction == 0:
+            if self.change_time > 0 and self.change_time <= 15:
+                window.blit(self.sprite_zombie_left_big_going_left,(self.posx,self.posy))
+                
+            if self.change_time >= 16 and self.change_time <= 30:
+                window.blit(self.sprite_zombie_right_big_going_left,(self.posx,self.posy))
+                
+            if self.attack == 1:
+                window.blit(self.sprite_zombie_attack_going_right_big,(self.posx,self.posy))
+                
+                    
+        
+        
+        if self.direction == 1:
+            
+            if self.attack == 2:
+                window.blit(self.sprite_zombie_attack_going_left_big,(self.posx,self.posy))
+            
+            if self.attack == 0:
+                if self.change_time < 0 and self.change_time >= 15:
+                    window.blit(self.sprite_zombie_left_big,(self.posx,self.posy))
+                    
+                if self.change_time >= 16 and self.change_time <= 30:
+                    window.blit(self.sprite_zombie_right_big,(self.posx,self.posy))
+                
+
+
+        self.change_time += 1
+        
+        if self.change_time == 31:
+            self.change_time = 0
+            
+        
+    def move(self,p1x,p1y):
+        
+        self.attack = 0
+        
+        self.sprite_zombie_left = pygame.image.load("zombie_left.png")
+        # directhion = 0 je ide desno, a levo vice-versa
+        
+        
+        if self.posx > p1x:
+            self.direction = 0
+        if self.posx< p1x:
+            self.direction = 1
+            
+        if self.direction == 1:
+            self.posx += self.speed
+        if self.direction == 0:
+            self.posx -= self.speed
+            
+        if self.posx + self.hit_range + self.sprite_zombie_left.get_width()*4 < p1x:
+            if self.direction == 0:
+                self.attack = 2
+                
+        if self.posx - self.hit_range < p1x:
+            if self.direction == 1:
+                self.attack = 1
+        
+
 
 class Target:
     def __init__(self,x,y,speed,width,height,direction):
@@ -105,49 +227,51 @@ class Target:
             self.x += self.speed
         else:
             self.x -= self.speed
+            
+    
 FPS = 60
 class Player:
-    def __init__(self,x,y,speed):
-        self.x = x
-        self.y = y
+    def __init__(self,spritesheete_pos,speed):
         self.speed = speed
         self.movement = [0,0]
         self.change_time = 0
+        self.spritesheete_pos = spritesheete_pos
         self.spritesheete_pos = [1,590]
         self.movefix = 0
         self.knight_lane = 3
         self.ff = 0
         self.clicked = 0
         self.cooldown = 0
+        SCALE = 4
         
         #Left foot first
         
         self.spriteshee1 = pygame.image.load('run.knight1.png')
         
-        self.spritesheet1 = pygame.transform.scale(self.spriteshee1,(self.spriteshee1.get_width()*4,
-        self.spriteshee1.get_height()*4))
+        self.spritesheet1 = pygame.transform.scale(self.spriteshee1,(self.spriteshee1.get_width()*SCALE,
+        self.spriteshee1.get_height()*SCALE))
 
         
         #Right foot first
         
         self.spriteshee2 = pygame.image.load('run.knight2.png')
         
-        self.spritesheet2 = pygame.transform.scale(self.spriteshee2,(self.spriteshee2.get_width()*4,
-        self.spriteshee2.get_height()*4))
+        self.spritesheet2 = pygame.transform.scale(self.spriteshee2,(self.spriteshee2.get_width()*SCALE,
+        self.spriteshee2.get_height()*SCALE))
 
         #mid
 
         self.spriteshee3 = pygame.image.load('run.knight3.png')
         
-        self.spritesheet3 = pygame.transform.scale(self.spriteshee3,(self.spriteshee3.get_width()*4,
-        self.spriteshee3.get_height()*4))
+        self.spritesheet3 = pygame.transform.scale(self.spriteshee3,(self.spriteshee3.get_width()*SCALE,
+        self.spriteshee3.get_height()*SCALE))
 
         #attack
         
         self.sprite_attack = pygame.image.load("attack1knight.png")
         
-        self.sprite_attack_big = pygame.transform.scale(self.sprite_attack,(self.sprite_attack.get_width()*4,
-        self.sprite_attack.get_height()*4))
+        self.sprite_attack_big = pygame.transform.scale(self.sprite_attack,(self.sprite_attack.get_width()*SCALE,
+        self.sprite_attack.get_height()*SCALE))
 
 
     def draw(self,window):
@@ -205,7 +329,7 @@ class Player:
         
         
         
-s = random.randint(0,1000)
+        
 
 l_targets = []
 target = Target(400,600,2,125,100,1)
@@ -216,6 +340,20 @@ if target.direction == 0:
 if target.direction == 1:
     target.x = 950
 
+l_zombies = []
+
+
+
+sprite_zombie_right = pygame.image.load("zombie_right.png")
+q = sprite_zombie_right.get_width()*4
+
+spriteshee2 = pygame.image.load('run.knight2.png')
+aa = spriteshee2.get_height()*4
+
+
+
+zom = Zombie(1.5,0,random.randint(10,990 - q),520,50)
+l_zombies.append(zom)
 
 
 sprite_offset_x = 19
@@ -224,7 +362,7 @@ sprite_offset_x = 19
 sprites = pygame.image.load("KnightSpritesheet.png")
 i = 0
 import time
-SCALE = 4
+
 sprites = pygame.transform.scale(sprites,(sprites.get_width()*4,sprites.get_height()*4))
 #hile True:
 #   if i>3:
@@ -236,7 +374,7 @@ sprites = pygame.transform.scale(sprites,(sprites.get_width()*4,sprites.get_heig
 #   time.sleep(0.45)
     
     
-p = Player(0,0,3)
+p = Player([1,590],3)
 
 clock = pygame.time.Clock()
 
@@ -249,6 +387,13 @@ while True:
     
     
     window.fill("White")
+    
+    spawn_zombies = random.randint(0,10000)
+    if len(l_zombies) <= 2:
+        if spawn_zombies <= 10:
+            zom = Zombie(1.5,0,random.randint(10,990 - q),520,50)
+            l_zombies.append(zom)
+    
     
     blit(spritesheet31,0,0,window)
     keys = pygame.key.get_pressed()
@@ -264,7 +409,9 @@ while True:
 
         
         
-        
+    zom.move(p.spritesheete_pos[0],p.spritesheete_pos[1])
+    zom.draw(window)
+    
     p.move(keys)
     #pygame.draw.rect(window, pygame.Color("Gray"), pygame.Rect((0,650, 1000,100)))
     
